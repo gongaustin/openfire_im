@@ -5,7 +5,6 @@ import com.gongjun.im.core.constant.HttpCodeConstant;
 import io.swagger.annotations.Api;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SASLAuthentication;
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -15,7 +14,6 @@ import org.jxmpp.jid.parts.Localpart;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 
 /**
  * @Description:IM聊天接口
@@ -55,44 +53,31 @@ public class IMController{
         SASLAuthentication.blacklistSASLMechanism("CRAM-MD5");
         try {
             connection.connect();
-        } catch (SmackException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XMPPException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return connection;
     }
 
     @GetMapping("register")
-    private ResponseBean register (@RequestParam String name,@RequestParam String password){
-        ResponseBean rb = new ResponseBean(200,"success",null);
+    private ResponseBean register (@RequestParam String name,@RequestParam String password) {
+        ResponseBean rb = new ResponseBean(200, "success", null);
         XMPPTCPConnection connection = this.getConnetion();
         try {
-            connection.login("admin","123456");
+            /**
+             * 先登录后注册，否则无法注册
+             * */
+            connection.login("admin", "123456");
             AccountManager manager = AccountManager.getInstance(connection);
             manager.sensitiveOperationOverInsecureConnection(true);
-            manager.createAccount(Localpart.from(name),password);
+            manager.createAccount(Localpart.from(name), password);
         } catch (XMPPException e) {
             rb.setCode(HttpCodeConstant.BADGATEWAY);
-            rb.setMsg(e.getMessage());
-        } catch (SmackException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            rb.setMsg("already registered or registered failed");
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-        return rb;
-    }
-
-
-
-
+            return rb;
+        }
 
 }
