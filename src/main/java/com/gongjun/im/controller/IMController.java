@@ -39,7 +39,7 @@ public class IMController{
             config = XMPPTCPConnectionConfiguration.builder()
                     .setHost(server)
                     .setPort(port)
-                    .setXmppDomain( JidCreate.domainBareFrom(server))
+                    .setXmppDomain(JidCreate.domainBareFrom(server))
                     .setSendPresence(false)
                     .setSecurityMode((ConnectionConfiguration.SecurityMode.disabled))
                     .setUsernameAndPassword("admin","123456")
