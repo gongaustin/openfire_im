@@ -3,7 +3,7 @@ package com.gongjun.im.controller;
 import com.gongjun.im.core.bean.ResponseBean;
 import com.gongjun.im.core.constant.HttpCodeConstant;
 import io.swagger.annotations.Api;
-import org.jivesoftware.smack.ConnectionConfiguration;  
+import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
