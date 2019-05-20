@@ -2,6 +2,7 @@ package com.gongjun.im.controller;
 
 import com.gongjun.im.core.bean.ResponseBean;
 import com.gongjun.im.core.constant.HttpCodeConstant;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SASLAuthentication;
@@ -13,6 +14,8 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 /**
@@ -70,7 +73,10 @@ public class IMController{
             connection.login("admin", "123456");
             AccountManager manager = AccountManager.getInstance(connection);
             manager.sensitiveOperationOverInsecureConnection(true);
-            manager.createAccount(Localpart.from(name), password);
+            Map<String,String> map = Maps.newHashMap();
+            map.put("name","龚均");
+            map.put("email","123@qq.com");
+            manager.createAccount(Localpart.from(name), password,map);
         } catch (XMPPException e) {
             rb.setCode(HttpCodeConstant.BADGATEWAY);
             rb.setMsg("already registered or registered failed");
