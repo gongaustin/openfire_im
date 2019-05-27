@@ -2,19 +2,26 @@ package com.gongjun.im.controller;
 
 import com.gongjun.im.core.bean.ResponseBean;
 import com.gongjun.im.core.constant.HttpCodeConstant;
+import com.gongjun.im.model.Test;
+import com.gongjun.im.service.ITestService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
+import org.apache.shiro.util.CollectionUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.stringprep.XmppStringprepException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -35,6 +42,9 @@ public class IMController{
 
     @Value("${openfire.hostname}")
     private String hostname;
+
+    @Autowired
+    private ITestService service;
 
     private XMPPTCPConnection getConnetion(){
         XMPPTCPConnectionConfiguration config = null;
@@ -74,14 +84,26 @@ public class IMController{
             AccountManager manager = AccountManager.getInstance(connection);
             manager.sensitiveOperationOverInsecureConnection(true);
             Map<String,String> map = Maps.newHashMap();
-            map.put("name","龚均");
-            map.put("email","123@qq.com");
-            manager.createAccount(Localpart.from(name), password,map);
-        } catch (XMPPException e) {
+            List<Test> users = this.service.selectList(null);
+
+            if(!CollectionUtils.isEmpty(users))
+                users.stream().forEach(
+                        e->{
+                            map.put("name",e.getRealname());
+                            map.put("email","");
+                            try {
+                                manager.createAccount(Localpart.from(e.getUsername()), password,map);
+                            } catch (Exception e1) {
+                                rb.setCode(HttpCodeConstant.BADGATEWAY);
+                                rb.setMsg(e.getUsername()+" already registered or registered failed");
+                            }
+                        }
+
+                );
+
+        } catch (Exception e) {
             rb.setCode(HttpCodeConstant.BADGATEWAY);
             rb.setMsg("already registered or registered failed");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
             return rb;
         }
